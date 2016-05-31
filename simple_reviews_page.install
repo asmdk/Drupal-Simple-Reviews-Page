@@ -1,0 +1,32 @@
+<?php
+/**
+ * Implements hook_schema().
+ * 
+ */
+function simple_reviews_page_schema() {
+  $schema['simple_reviews_page_reviews'] = array(
+    'description' => 'Reviews',
+    'fields' => array(
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
+
+function simple_reviews_page_install() {
+  drupal_set_message(t('Simple reviews page is installed. To start, please visit !here',
+    array('!here' => l(t('module settings screen'), 'admin/config/people/simple_reviews_page'))), 'status');
+}
+
+function simple_reviews_page_uninstall() {
+  // Delete fields handled by module.
+  $fields = field_read_fields(array(), array('include_inactive' => 1));
+  foreach ($fields as $key => $field) {
+    if ($field['module'] == ' simple_reviews_page') {
+      field_delete_field($key);
+      field_purge_field($field);
+    }
+  }
+  
+  variable_del('simple_reviews_page_settings');
+}
