@@ -5,11 +5,148 @@
  */
 function simple_reviews_page_schema() {
   $schema['simple_reviews_page_reviews'] = array(
-    'description' => 'Reviews',
+    'description' => 'Reviews table',
     'fields' => array(
+      'rid' => array(
+        'description' => 'The primary identifier for a review.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+          'description' => 'User name',
+          'type' => 'varchar',
+          'length' => 50,
+          'not null' => TRUE,
+          'default' => '',
+      ),
+      'email' => array(
+          'description' => 'User email',
+          'type' => 'varchar',
+          'length' => 100,
+          'not null' => FALSE,
+      ),
+      'phone' => array(
+          'description' => 'User phone',
+          'type' => 'varchar',
+          'length' => 25,
+          'not null' => FALSE,
+      ),
+      'topic' => array(
+          'description' => 'Topic of review',
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+      ),
+      'message' => array(
+          'description' => 'Review message',
+          'type' => 'text',
+          'not null' => TRUE,
+          'size' => 'big',
+      ),
+      'status' => array(
+          'description' => 'Boolean indicating whether the review is active (visible to non-administrators)',
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 1,
+      ),
+      'created' => array(
+          'description' => 'The Unix timestamp when the review was created.',
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+      ),
+      'sticky' => array(
+          'description' => 'Boolean indicating whether the review should be displayed at the top of lists in which it appears',
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+      ),
     ),
-    'primary key' => array('id'),
+    'indexes' => array(
+        'review_created' => array('created'),
+        'review_sticky' => array('sticky'),
+        'review_status' => array('status'),
+    ),
+    'unique keys' => array(
+        'email' => array('email'),
+        'phone' => array('phone'),
+    ),
+    'foreign keys' => array(
+        'simple_reviews_page_comments' => array(
+            'table' => 'simple_reviews_page_comments',
+            'columns' => array('rid' => 'rid'),
+        ),
+    ),
+    'primary key' => array('rid'),
   );
+
+  $schema['simple_reviews_page_comments'] = array(
+    'description' => 'Reviews comments table',
+    'fields' => array(
+      'cid' => array(
+          'description' => 'The primary identifier for a review',
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+      ),
+      'rid' => array(
+          'description' => 'The current review identifier',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'User name',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'office' => array(
+        'description' => 'User email',
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => FALSE,
+          'default' => '',
+      ),
+      'message' => array(
+          'description' => 'Review comment',
+          'type' => 'text',
+          'not null' => TRUE,
+          'size' => 'big',
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating whether the review is active (visible to non-administrators)',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the review was created',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+          'description' => 'The Unix timestamp when the node was most recently saved',
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'review_created' => array('created'),
+      'review_changed' => array('changed'),
+      'review_status' => array('status'),
+    ),
+    'unique keys' => array(
+      'rid' => array('rid'),
+    ),
+    'primary key' => array('cid'),
+  );
+
   return $schema;
 }
 
@@ -19,14 +156,5 @@ function simple_reviews_page_install() {
 }
 
 function simple_reviews_page_uninstall() {
-  // Delete fields handled by module.
-  $fields = field_read_fields(array(), array('include_inactive' => 1));
-  foreach ($fields as $key => $field) {
-    if ($field['module'] == ' simple_reviews_page') {
-      field_delete_field($key);
-      field_purge_field($field);
-    }
-  }
-  
   variable_del('simple_reviews_page_settings');
 }
