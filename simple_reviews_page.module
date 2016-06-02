@@ -1,0 +1,13 @@
+<?php
+
+function simple_reviews_page_menu() {
+    $items['reviews'] = array(
+        'title' => t('Reviews'),
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('simple_reviews_page_site_form'),
+        'access arguments' => array('access site-wide simple_reviews_page form'),
+        'type' => MENU_SUGGESTED_ITEM,
+        'file' => 'simple_reviews_page.pages.inc',
+    );
+    return $items;
+}
