@@ -1,13 +1,59 @@
 <?php
 
+define('REVIEWS_PER_PAGE', 2);
+define('REVIEW_ACTIVE', 1);
+define('REVIEW_INACTIVE', 0);
+
 function simple_reviews_page_menu() {
-    $items['reviews'] = array(
-        'title' => t('Reviews'),
+    $items['reviews/send'] = array(
+        'title' => t('Send Review'),
         'page callback' => 'drupal_get_form',
         'page arguments' => array('simple_reviews_page_site_form'),
-        'access arguments' => array('access site-wide simple_reviews_page form'),
+        'access arguments' => array('access site-wide simple_reviews_send_reviews form'),
         'type' => MENU_SUGGESTED_ITEM,
         'file' => 'simple_reviews_page.pages.inc',
     );
+    $items['reviews'] = array(
+        'title' => t('Reviews'),
+        'page callback' => 'simple_reviews_page_view',
+        'access arguments' => array('access content simple_reviews_page_view_reviews'),
+        'page arguments' => array(1),
+    );
+
     return $items;
+}
+
+function simple_reviews_page_theme() {
+    return array(
+        'simple_reviews_page_reviews_listing' => array(
+            'variables' => array('reviews' => array()),
+            'template' => 'simple-reviews-page-reviews-listing',
+        ),
+    );
+}
+
+function simple_reviews_page_view() {
+    $output = '';
+
+    $query = db_select('simple_reviews_page_reviews', 'r')
+        ->extend('PagerDefault');
+    $query->leftJoin('simple_reviews_page_comments', 'c', 'r.rid = c.rid');
+    $query->fields('r', array('rid', 'name', 'email', 'phone', 'topic', 'message', 'created', 'status'));
+    $query->addField('c', 'cid', 'cid');
+    $query->addField('c', 'name', 'c_name');
+    $query->addField('c', 'office', 'c_office');
+    $query->addField('c', 'message', 'c_message');
+    $query->addField('c', 'changed', 'c_changed');
+    $query->addField('c', 'status', 'c_status');
+    $query->condition('r.status', REVIEW_ACTIVE);
+    $query->orderBy('r.sticky', 'DESC');
+    $query->orderBy('r.created', 'DESC');
+    $query->limit(REVIEWS_PER_PAGE);
+
+    $reviews = $query->execute()->fetchAllAssoc('rid');
+
+    $output .= theme('simple_reviews_page_reviews_listing', array('reviews' => $reviews));
+    $output .= theme('pager');
+
+    return $output;
 }
