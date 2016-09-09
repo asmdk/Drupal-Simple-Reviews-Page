@@ -1,8 +1,9 @@
-name = simple reviews page
+name = Simple Reviews Page
 description = simple reviews page
 core = 7.x
 package = Other
 
 files[] = simple_reviews_page.inc
+stylesheets[all][] = css/simple-reviews-page.css
 configure = admin/config/people/simple_reviews_page
 

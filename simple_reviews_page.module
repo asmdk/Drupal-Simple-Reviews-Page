@@ -1,23 +1,78 @@
 <?php
 
+/**
+ * @file
+ * Simple reviews page module.
+ */
+
 define('REVIEWS_PER_PAGE', 2);
 define('REVIEW_ACTIVE', 1);
 define('REVIEW_INACTIVE', 0);
 
+/**
+ * Implements hook_permission().
+ */
+function simple_reviews_page_permission() {
+    return array(
+        'simple_reviews_page_view_reviews' => array(
+            'title' => t('View reviews page'),
+        ),
+        'simple_reviews_page_leave_feedback' => array(
+            'title' => t('Leave feedback'),
+        ),
+        'simple_reviews_page_administration' => array(
+            'title' => t('Administer reviews'),
+        ),
+    );
+}
+
+/**
+ * Implements hook_menu().
+ */
 function simple_reviews_page_menu() {
     $items['reviews/send'] = array(
         'title' => t('Send Review'),
         'page callback' => 'drupal_get_form',
         'page arguments' => array('simple_reviews_page_site_form'),
-        'access arguments' => array('access site-wide simple_reviews_send_reviews form'),
+        'access arguments' => array('simple_reviews_page_leave_feedback'),
         'type' => MENU_SUGGESTED_ITEM,
         'file' => 'simple_reviews_page.pages.inc',
     );
     $items['reviews'] = array(
         'title' => t('Reviews'),
         'page callback' => 'simple_reviews_page_view',
-        'access arguments' => array('access content simple_reviews_page_view_reviews'),
-        'page arguments' => array(1),
+        'access arguments' => array('simple_reviews_page_view_reviews'),
+    );
+
+    $items['admin/structure/simple_reviews_page'] = array(
+        'title' => 'Simple Reviews',
+        'description' => 'Administer reviews',
+        'page callback' => 'simple_reviews_page_list',
+        'access arguments' => array('simple_reviews_page_administration'),
+        'file' => 'simple_reviews_page.admin.inc',
+    );
+    $items['admin/structure/simple_reviews_page/add'] = array(
+        'title' => 'Add review',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('simple_reviews_page_edit_form'),
+        'access arguments' => array('simple_reviews_page_administration'),
+        'type' => MENU_LOCAL_ACTION,
+        'weight' => 1,
+        'file' => 'simple_reviews_page.admin.inc',
+    );
+    $items['admin/structure/simple_reviews_page/edit/%review'] = array(
+        'title' => 'Edit review',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('simple_reviews_page_edit_form', 4),
+        'access arguments' => array('simple_reviews_page_administration'),
+        'file' => 'simple_reviews_page.admin.inc',
+    );
+    $items['admin/structure/simple_reviews_page/delete/%review'] = array(
+        'title' => 'Delete review',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('simple_reviews_page_delete_form', 4),
+        'access arguments' => array('simple_reviews_page_administration'),
+        'file' => 'simple_reviews_page.admin.inc',
     );
 
     return $items;
@@ -50,7 +105,7 @@ function simple_reviews_page_view() {
     $query->orderBy('r.created', 'DESC');
     $query->limit(REVIEWS_PER_PAGE);
 
-    $reviews = $query->execute()->fetchAllAssoc('rid');
+    $reviews = $query->execute()->fetchAll();
 
     $output .= theme('simple_reviews_page_reviews_listing', array('reviews' => $reviews));
     $output .= theme('pager');

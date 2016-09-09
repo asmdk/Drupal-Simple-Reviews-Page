@@ -1,0 +1,21 @@
+#simple-reviews-page .leave-feedback {
+    text-align: right;
+    margin: 20px 0;
+}
+#simple-reviews-page .review-content.first {
+    border-top: 1px solid #e5e5e5;
+}
+#simple-reviews-page .review-content {
+    border-bottom: 1px solid #e5e5e5;
+    padding: 14px 40px 25px 20px;
+}
+#simple-reviews-page .admin-comment {
+    margin: 15px 0 0 25px;
+}
+#simple-reviews-page .answer-name, #simple-reviews-page .question-name {
+    font-weight: bold;
+}
+#simple-reviews-page .question-name span, #simple-reviews-page .answer-name span {
+    font-style: italic;
+    font-weight: normal;
+}

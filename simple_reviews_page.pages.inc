@@ -111,6 +111,7 @@ function simple_reviews_page_site_form_submit($form, &$form_state) {
     }
 
     // Get the to and from e-mail addresses.
+    //TODO: get email adress from admin panel
     $to = 'qwertggf@mail.ru';
     $from = $values['sender']->mail;
 
